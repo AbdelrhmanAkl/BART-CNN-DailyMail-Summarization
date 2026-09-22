@@ -3,7 +3,9 @@
 > An end-to-end abstractive text summarization system built with a fine-tuned BART Transformer on the CNN/DailyMail dataset, evaluated against the original pretrained BART baseline and deployed as an interactive Streamlit application.
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Streamlit-red?logo=streamlit)](https://bart-cnn-dailymail-summarization.streamlit.app/)
+
 [![Model](https://img.shields.io/badge/Model-Hugging%20Face-yellow?logo=huggingface)](https://huggingface.co/AbdelrahmanAkl/bart-cnn-dailymail-summarization)
+
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-black?logo=github)](https://github.com/AbdelrhmanAkl/BART-CNN-DailyMail-Summarization)
 
 ---
@@ -32,7 +34,7 @@ The project covers the complete machine learning workflow:
 
 ## Live Demo
 
-### Try the application
+### Try the Application
 
 **[Launch the Streamlit Demo](https://bart-cnn-dailymail-summarization.streamlit.app/)**
 
@@ -41,7 +43,7 @@ The application allows users to:
 1. Enter an article or long-form text
 2. Generate an abstractive summary
 3. View the generated summary
-4. Inspect input/output word counts
+4. Inspect input and output word counts
 5. View the resulting compression ratio
 
 The deployed application loads the fine-tuned model directly from Hugging Face when the local model directory is unavailable.
@@ -63,8 +65,9 @@ The deployed application loads the fine-tuned model directly from Hugging Face w
 | Learning Rate         | `5e-5`                         |
 | Train Batch Size      | 2                              |
 | Gradient Accumulation | 8                              |
+| Effective Batch Size  | 16                             |
 | Weight Decay          | 0.01                           |
-| Optimizer             | Hugging Face Trainer           |
+| Training Framework    | Hugging Face `Seq2SeqTrainer`  |
 | Precision             | FP16                           |
 | Random Seed           | 42                             |
 
@@ -133,26 +136,43 @@ The checkpoint was independently reloaded and validated before packaging.
 
 ## Baseline Comparison
 
-To measure the effect of fine-tuning, the final model was compared against the original pretrained `facebook/bart-base`.
+The evaluation was designed to separate the effect of **model fine-tuning** from the effect of **generation optimization**.
 
-Both models were evaluated under the same test conditions.
+### 1. Fine-tuning Impact
 
-| Metric     | Base BART | Fine-tuned BART | Absolute Change |
-| ---------- | --------: | --------------: | --------------: |
-| ROUGE-1    |  0.392200 |    **0.407043** |      +0.000620* |
-| ROUGE-2    |  0.176266 |    **0.181450** |      +0.000539* |
-| ROUGE-L    |  0.245521 |    **0.276308** |      +0.000303* |
-| ROUGE-Lsum |  0.319560 |    **0.374985** |      +0.000423* |
+The original pretrained `facebook/bart-base` was compared with the fine-tuned model using the original generation configuration.
 
-* The absolute changes in this table compare the final optimized generation run with the original baseline. The fine-tuned model was evaluated after generation optimization using `no_repeat_ngram_size=3`.
+| Metric     | Base BART | Original Fine-tuned | Absolute Change |
+| ---------- | --------: | ------------------: | --------------: |
+| ROUGE-1    |  0.392200 |            0.406423 |       +0.014223 |
+| ROUGE-2    |  0.176266 |            0.180911 |       +0.004645 |
+| ROUGE-L    |  0.245521 |            0.276005 |       +0.030484 |
+| ROUGE-Lsum |  0.319560 |            0.374562 |       +0.055002 |
+
+These results show the change associated with **fine-tuning the pretrained BART model** under the original generation setup.
+
+### 2. Generation Optimization Impact
+
+After fine-tuning, generation parameters were optimized using the validation set.
+
+The final optimized configuration produced the following test results:
+
+| Metric     | Original Fine-tuned | Final Optimized | Absolute Change |
+| ---------- | ------------------: | --------------: | --------------: |
+| ROUGE-1    |            0.406423 |        0.407043 |       +0.000620 |
+| ROUGE-2    |            0.180911 |        0.181450 |       +0.000539 |
+| ROUGE-L    |            0.276005 |        0.276308 |       +0.000303 |
+| ROUGE-Lsum |            0.374562 |        0.374985 |       +0.000423 |
+
+This second comparison isolates the effect of the selected generation configuration from the effect of model fine-tuning.
 
 ### Interpretation
 
-The fine-tuned model achieved higher ROUGE scores than the original pretrained baseline under the same evaluation framework.
+The final fine-tuned model achieved higher ROUGE scores than the original pretrained baseline under the same evaluation framework.
 
-The largest improvement was observed in **ROUGE-Lsum**, indicating stronger overlap with the reference summaries at the sequence level.
+The largest fine-tuning-related improvement was observed in **ROUGE-Lsum**.
 
-ROUGE measures lexical overlap with reference summaries and should not be interpreted as a direct measure of factual accuracy or overall summary quality.
+ROUGE measures lexical overlap with reference summaries and should not be interpreted as a direct measure of factual accuracy, coherence, or overall summary quality.
 
 ---
 
@@ -218,6 +238,8 @@ Artificial intelligence is transforming the way organizations operate across ind
 Artificial intelligence is transforming the way organizations operate across industries. Companies are increasingly adopting machine learning and natural language processing systems to automate repetitive tasks, analyze large volumes of information, and support employees in making faster decisions. In healthcare, AI systems can help doctors analyze medical images and identify patterns that may require further investigation.
 ```
 
+This example demonstrates the deployed inference pipeline. The generated output is not intended to represent benchmark-level quality on its own; quantitative performance is reported using the full 1,000-example test evaluation above.
+
 ---
 
 ## Deployment
@@ -261,26 +283,32 @@ The fine-tuned model is hosted on Hugging Face:
 
 **[AbdelrahmanAkl/bart-cnn-dailymail-summarization](https://huggingface.co/AbdelrahmanAkl/bart-cnn-dailymail-summarization)**
 
-The repository contains the packaged BART model, tokenizer configuration, and generation configuration.
+The repository contains:
+
+* Fine-tuned BART weights
+* Model configuration
+* Tokenizer configuration
+* Generation configuration
 
 ---
 
 ## Local Installation
 
-### 1. Clone the repository
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/AbdelrhmanAkl/BART-CNN-DailyMail-Summarization.git
+
 cd BART-CNN-DailyMail-Summarization
 ```
 
-### 2. Create a virtual environment
+### 2. Create a Virtual Environment
 
 ```bash
 python -m venv .venv
 ```
 
-### 3. Activate the environment
+### 3. Activate the Environment
 
 Windows:
 
@@ -294,13 +322,13 @@ Linux/macOS:
 source .venv/bin/activate
 ```
 
-### 4. Install dependencies
+### 4. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 5. Run the application
+### 5. Run the Application
 
 ```bash
 streamlit run app.py
@@ -414,12 +442,12 @@ Potential extensions include:
 
 ## Author
 
-### Eng.Abdelrahman Akl
+### Eng. Abdelrahman Akl
 
 AI Engineer | NLP | LLMs | Agentic AI | Deep Learning
 
-* GitHub: https://github.com/AbdelrhmanAkl
-* LinkedIn: https://www.linkedin.com/in/abdelrahmanakl/
+* **GitHub:** https://github.com/AbdelrhmanAkl
+* **LinkedIn:** https://www.linkedin.com/in/abdelrahmanakl/
 
 ---
 
