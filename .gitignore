@@ -1,0 +1,31 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Local model/package backups
+bart_cnn_dailymail_final/
+bart_cnn_dailymail_final.zip
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+
+# Fine-tuned model weights (hosted separately)
+model/
+
+
+# Fine-tuned model weights (hosted separately)
+model/
+
