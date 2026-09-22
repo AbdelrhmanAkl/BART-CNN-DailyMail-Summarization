@@ -9,7 +9,9 @@ from transformers import BartForConditionalGeneration, BartTokenizer
 # ============================================================
 
 PROJECT_ROOT = Path(__file__).resolve().parent
-MODEL_PATH = PROJECT_ROOT / "model"
+
+LOCAL_MODEL_PATH = PROJECT_ROOT / "model"
+HF_MODEL_ID = "AbdelrahmanAkl/bart-cnn-dailymail-summarization"
 
 MAX_INPUT_LENGTH = 1024
 MAX_OUTPUT_LENGTH = 128
@@ -74,9 +76,21 @@ st.markdown(
 
 @st.cache_resource
 def load_model():
-    tokenizer = BartTokenizer.from_pretrained(MODEL_PATH)
+    if (
+        LOCAL_MODEL_PATH.exists()
+        and (LOCAL_MODEL_PATH / "model.safetensors").exists()
+    ):
+        model_source = LOCAL_MODEL_PATH
+        source_label = "Local model"
+    else:
+        model_source = HF_MODEL_ID
+        source_label = "Hugging Face"
 
-    model = BartForConditionalGeneration.from_pretrained(MODEL_PATH)
+    tokenizer = BartTokenizer.from_pretrained(model_source)
+
+    model = BartForConditionalGeneration.from_pretrained(
+        model_source
+    )
 
     device = torch.device(
         "cuda" if torch.cuda.is_available() else "cpu"
@@ -85,7 +99,7 @@ def load_model():
     model.to(device)
     model.eval()
 
-    return tokenizer, model, device
+    return tokenizer, model, device, source_label
 
 
 # ============================================================
@@ -111,7 +125,6 @@ st.markdown(
 # ============================================================
 
 with st.sidebar:
-
     st.header("Model Information")
 
     st.write("**Architecture:** BART")
@@ -125,9 +138,15 @@ with st.sidebar:
 
     st.write(f"**Beam Search:** {NUM_BEAMS}")
     st.write(f"**Length Penalty:** {LENGTH_PENALTY}")
-    st.write(f"**No Repeat N-gram:** {NO_REPEAT_NGRAM_SIZE}")
-    st.write(f"**Max Input Tokens:** {MAX_INPUT_LENGTH}")
-    st.write(f"**Max Output Tokens:** {MAX_OUTPUT_LENGTH}")
+    st.write(
+        f"**No Repeat N-gram:** {NO_REPEAT_NGRAM_SIZE}"
+    )
+    st.write(
+        f"**Max Input Tokens:** {MAX_INPUT_LENGTH}"
+    )
+    st.write(
+        f"**Max Output Tokens:** {MAX_OUTPUT_LENGTH}"
+    )
 
 
 # ============================================================
@@ -135,11 +154,9 @@ with st.sidebar:
 # ============================================================
 
 try:
-
-    tokenizer, model, device = load_model()
+    tokenizer, model, device, source_label = load_model()
 
 except Exception as error:
-
     st.error(f"Failed to load the model: {error}")
     st.stop()
 
@@ -149,9 +166,13 @@ except Exception as error:
 # ============================================================
 
 if device.type == "cuda":
-    st.success("Model loaded successfully on GPU.")
+    st.success(
+        f"Model loaded successfully on GPU ({source_label})."
+    )
 else:
-    st.info("Model loaded successfully on CPU.")
+    st.info(
+        f"Model loaded successfully on CPU ({source_label})."
+    )
 
 
 # ============================================================
@@ -181,7 +202,6 @@ if st.button(
 ):
 
     if not article.strip():
-
         st.warning(
             "Please enter some text before generating a summary."
         )
@@ -202,7 +222,6 @@ if st.button(
         }
 
         with torch.no_grad():
-
             outputs = model.generate(
                 **inputs,
                 num_beams=NUM_BEAMS,
@@ -252,9 +271,7 @@ if st.button(
         )
 
     with col3:
-
         if input_words > 0:
-
             compression = (
                 1 - output_words / input_words
             ) * 100
@@ -263,9 +280,7 @@ if st.button(
                 "Compression",
                 f"{compression:.1f}%",
             )
-
         else:
-
             st.metric(
                 "Compression",
                 "N/A",
