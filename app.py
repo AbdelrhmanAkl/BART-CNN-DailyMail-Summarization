@@ -391,7 +391,6 @@ if st.button(
             <div class="result-label">
                 AI Generated Summary
             </div>
-
             <div class="result-text">
                 {safe_summary}
             </div>
