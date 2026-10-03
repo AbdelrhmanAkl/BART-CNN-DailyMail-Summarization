@@ -255,17 +255,14 @@ st.markdown(
     """
     <div class="hero">
         <div class="badge">NLP · TRANSFORMER · SUMMARIZATION</div>
-
         <div class="hero-title">
             BART Text Summarization
         </div>
-
         <div class="hero-text">
             Transform long-form articles into concise summaries
             using a fine-tuned BART Transformer model trained on
             the CNN/DailyMail dataset.
         </div>
-
         <div>
             <span class="tag">BART</span>
             <span class="tag">CNN/DailyMail</span>
