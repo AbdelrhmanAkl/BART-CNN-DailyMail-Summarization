@@ -1,12 +1,14 @@
-from pathlib import Path
 import html
+from pathlib import Path
 
 import streamlit as st
 import torch
-from transformers import BartForConditionalGeneration, BartTokenizer
+from transformers.models.bart.modeling_bart import BartForConditionalGeneration
+from transformers.models.bart.tokenization_bart import BartTokenizer
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent
+
 LOCAL_MODEL_PATH = PROJECT_ROOT / "model"
 HF_MODEL_ID = "AbdelrahmanAkl/bart-cnn-dailymail-summarization"
 
@@ -20,7 +22,7 @@ NO_REPEAT_NGRAM_SIZE = 3
 
 st.set_page_config(
     page_title="BART Summarizer",
-    page_icon="📝",
+    page_icon="AI",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -50,7 +52,7 @@ st.markdown(
         border-radius: 16px;
         padding: 30px;
         margin-bottom: 20px;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.04);
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
     }
 
     .badge {
@@ -154,7 +156,7 @@ st.markdown(
         border-radius: 14px;
         padding: 22px;
         margin-top: 10px;
-        box-shadow: 0 4px 18px rgba(0,0,0,0.03);
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
     }
 
     .result-label {
@@ -234,8 +236,11 @@ with st.sidebar:
     st.markdown("### Model")
 
     st.write("**Architecture:** BART")
+    st.write("**Base Model:** facebook/bart-base")
     st.write("**Dataset:** CNN/DailyMail")
-    st.write("**Task:** Text Summarization")
+    st.write("**Task:** Abstractive Summarization")
+
+    st.divider()
 
     st.markdown("### Generation")
 
@@ -250,12 +255,17 @@ st.markdown(
     """
     <div class="hero">
         <div class="badge">NLP · TRANSFORMER · SUMMARIZATION</div>
-        <div class="hero-title">BART Text Summarization</div>
-        <div class="hero-text">
-            Transform long-form articles into concise summaries using
-            a fine-tuned BART Transformer model trained on the
-            CNN/DailyMail dataset.
+
+        <div class="hero-title">
+            BART Text Summarization
         </div>
+
+        <div class="hero-text">
+            Transform long-form articles into concise summaries
+            using a fine-tuned BART Transformer model trained on
+            the CNN/DailyMail dataset.
+        </div>
+
         <div>
             <span class="tag">BART</span>
             <span class="tag">CNN/DailyMail</span>
@@ -270,17 +280,25 @@ st.markdown(
 
 try:
     tokenizer, model, device, source_label = load_model()
+
 except Exception as error:
-    st.error(f"Failed to load the model: {error}")
+    st.error(
+        f"Failed to load the model: {error}"
+    )
     st.stop()
 
 
-device_label = "GPU" if device.type == "cuda" else "CPU"
+device_label = (
+    "GPU"
+    if device.type == "cuda"
+    else "CPU"
+)
+
 
 st.markdown(
     f"""
     <div class="status">
-        ● Model ready · Running on {device_label} · Source: {source_label}
+        Model ready · Running on {device_label} · Source: {source_label}
     </div>
     """,
     unsafe_allow_html=True,
@@ -324,11 +342,15 @@ if st.button(
     type="primary",
     use_container_width=True,
 ):
+
     if not article.strip():
-        st.warning("Please enter some text before generating a summary.")
+        st.warning(
+            "Please enter some text before generating a summary."
+        )
         st.stop()
 
     with st.spinner("Generating summary..."):
+
         inputs = tokenizer(
             article,
             return_tensors="pt",
@@ -342,6 +364,7 @@ if st.button(
         }
 
         with torch.no_grad():
+
             outputs = model.generate(
                 **inputs,
                 num_beams=NUM_BEAMS,
@@ -356,7 +379,9 @@ if st.button(
             skip_special_tokens=True,
         )
 
+
     safe_summary = html.escape(summary)
+
 
     st.markdown(
         '<div class="section-title">Generated Summary</div>',
@@ -366,7 +391,10 @@ if st.button(
     st.markdown(
         f"""
         <div class="result-card">
-            <div class="result-label">AI Generated Summary</div>
+            <div class="result-label">
+                AI Generated Summary
+            </div>
+
             <div class="result-text">
                 {safe_summary}
             </div>
@@ -375,8 +403,10 @@ if st.button(
         unsafe_allow_html=True,
     )
 
+
     input_words = len(article.split())
     output_words = len(summary.split())
+
 
     if input_words > 0:
         compression = (
@@ -385,12 +415,15 @@ if st.button(
     else:
         compression = 0
 
+
     st.markdown(
         '<div class="section-title">Summary Statistics</div>',
         unsafe_allow_html=True,
     )
 
+
     col1, col2, col3 = st.columns(3)
+
 
     with col1:
         st.metric(
@@ -398,11 +431,13 @@ if st.button(
             f"{input_words:,}",
         )
 
+
     with col2:
         st.metric(
             "Summary Words",
             f"{output_words:,}",
         )
+
 
     with col3:
         st.metric(
