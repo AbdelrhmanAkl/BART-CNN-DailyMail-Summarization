@@ -43,185 +43,227 @@ SAMPLE_ARTICLE = (
 
 st.set_page_config(
     page_title="BART Summarizer",
-    page_icon="📝",
+    page_icon="✨",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 
 st.markdown(
     """
     <style>
-    .stApp {
-        background-color: #f7f8fa;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    html, body, [class*="css"], .stApp, button, textarea, input {
+        font-family: 'Inter', sans-serif !important;
     }
 
+    /* ---------- Page background ---------- */
+    .stApp {
+        background:
+            radial-gradient(900px 420px at 10% -10%, rgba(99,102,241,0.14), transparent 60%),
+            radial-gradient(800px 400px at 95% 0%, rgba(168,85,247,0.12), transparent 60%),
+            #fbfbff;
+    }
+
+    header[data-testid="stHeader"] { background: transparent; }
+    #MainMenu, footer { visibility: hidden; }
+
     .main .block-container {
-        max-width: 1150px;
-        padding-top: 1.5rem;
+        max-width: 1180px;
+        padding-top: 2.2rem;
         padding-bottom: 3rem;
     }
 
-    section[data-testid="stSidebar"] {
-        background-color: #ffffff;
-        border-right: 1px solid #e5e7eb;
-    }
-
+    /* ---------- Hero ---------- */
     .hero {
-        background-color: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 16px;
-        padding: 24px 28px;
-        margin-bottom: 16px;
-        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
+        text-align: center;
+        margin: 8px auto 26px auto;
+        max-width: 760px;
     }
 
-    .badge {
-        display: inline-block;
-        background-color: #f1f5f9;
-        color: #475569;
-        padding: 6px 10px;
-        border-radius: 20px;
+    .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(99,102,241,0.08);
+        border: 1px solid rgba(99,102,241,0.18);
+        color: #4338ca;
+        padding: 6px 14px;
+        border-radius: 999px;
         font-size: 12px;
-        font-weight: 700;
-        margin-bottom: 10px;
+        font-weight: 600;
+        letter-spacing: .02em;
+    }
+
+    .dot {
+        width: 8px; height: 8px; border-radius: 50%;
+        background: #22c55e;
+        box-shadow: 0 0 0 4px rgba(34,197,94,0.18);
     }
 
     .hero-title {
-        font-size: 34px;
-        font-weight: 700;
-        color: #111827;
-        margin: 0;
+        font-size: 48px;
+        line-height: 1.1;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.03em;
+        margin: 18px 0 12px 0;
+    }
+
+    .grad {
+        background: linear-gradient(90deg, #4f46e5, #9333ea);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
     }
 
     .hero-text {
-        color: #6b7280;
-        font-size: 15px;
+        color: #64748b;
+        font-size: 17px;
         line-height: 1.7;
-        margin-top: 8px;
-        max-width: 800px;
     }
 
+    .tags { margin-top: 16px; }
     .tag {
         display: inline-block;
-        background-color: #f8fafc;
-        border: 1px solid #e5e7eb;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
         color: #475569;
-        padding: 5px 10px;
-        border-radius: 7px;
+        padding: 5px 12px;
+        border-radius: 999px;
         font-size: 12px;
         font-weight: 600;
-        margin-right: 6px;
-        margin-top: 10px;
+        margin: 3px;
     }
 
-    .section-title {
-        font-size: 20px;
+    /* ---------- Cards (bordered containers) ---------- */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        background: #ffffff;
+        border: 1px solid #e8eaf2 !important;
+        border-radius: 20px !important;
+        box-shadow: 0 10px 30px rgba(79,70,229,0.06);
+        padding: 8px 10px;
+    }
+
+    .card-title {
+        font-size: 17px;
         font-weight: 700;
-        color: #111827;
-        margin-top: 16px;
-        margin-bottom: 4px;
+        color: #0f172a;
+        margin: 4px 0 2px 0;
     }
 
-    .section-text {
-        color: #6b7280;
-        font-size: 14px;
+    .card-sub {
+        font-size: 13px;
+        color: #94a3b8;
         margin-bottom: 10px;
     }
 
+    /* ---------- Text area ---------- */
     div[data-testid="stTextArea"] textarea {
-        background-color: #ffffff;
-        border: 1px solid #d1d5db;
-        border-radius: 12px;
-        color: #111827;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        color: #0f172a;
         font-size: 15px;
-        line-height: 1.6;
-        padding: 14px;
+        line-height: 1.7;
+        padding: 14px 16px;
     }
 
     div[data-testid="stTextArea"] textarea:focus {
-        border-color: #64748b;
-        box-shadow: 0 0 0 1px #64748b;
+        border-color: #6366f1;
+        box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+        background: #ffffff;
     }
 
+    /* ---------- Buttons ---------- */
     div.stButton > button {
-        width: 100%;
-        height: 46px;
-        border-radius: 10px;
-        font-size: 15px;
-        font-weight: 700;
-    }
-
-    div.stButton > button[kind="primary"] {
-        background-color: #111827;
-        border: 1px solid #111827;
-        color: #ffffff;
-    }
-
-    div.stButton > button[kind="primary"]:hover {
-        background-color: #1f2937;
-        border-color: #1f2937;
-        color: #ffffff;
+        border-radius: 12px;
+        height: 44px;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all .15s ease;
     }
 
     div.stButton > button[kind="secondary"] {
-        background-color: #ffffff;
-        border: 1px solid #d1d5db;
-        color: #111827;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        color: #334155;
     }
 
     div.stButton > button[kind="secondary"]:hover {
-        border-color: #111827;
-        color: #111827;
+        border-color: #6366f1;
+        color: #4f46e5;
+        background: #f5f5ff;
     }
 
-    .status {
-        background-color: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 10px 14px;
-        margin-bottom: 12px;
-        color: #4b5563;
-        font-size: 13px;
+    div.stButton > button[kind="primary"] {
+        background: linear-gradient(90deg, #4f46e5, #7c3aed);
+        border: none;
+        color: #ffffff;
+        height: 48px;
+        font-size: 15px;
+        box-shadow: 0 8px 20px rgba(99,102,241,0.30);
     }
 
-    .result-card {
-        background-color: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 14px;
-        padding: 22px;
-        margin-top: 10px;
-        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.03);
+    div.stButton > button[kind="primary"]:hover {
+        filter: brightness(1.06);
+        transform: translateY(-1px);
+        color: #ffffff;
     }
 
-    .result-label {
-        color: #6b7280;
-        font-size: 12px;
-        font-weight: 700;
-        text-transform: uppercase;
-        margin-bottom: 10px;
+    /* ---------- Expander ---------- */
+    div[data-testid="stExpander"] {
+        background: #ffffff;
+        border: 1px solid #e8eaf2;
+        border-radius: 16px;
+        margin-bottom: 18px;
     }
 
-    .result-text {
-        color: #1f2937;
+    /* ---------- Result ---------- */
+    .result-box {
+        background: linear-gradient(180deg, #f8f7ff, #ffffff);
+        border: 1px solid #e0e0ff;
+        border-radius: 16px;
+        padding: 20px 22px;
+        color: #1e293b;
         font-size: 16px;
+        line-height: 1.85;
+    }
+
+    .empty-box {
+        border: 2px dashed #e2e8f0;
+        border-radius: 16px;
+        padding: 60px 20px;
+        text-align: center;
+        color: #94a3b8;
+        font-size: 14px;
         line-height: 1.8;
     }
 
-    div[data-testid="stMetric"] {
-        background-color: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 10px;
-        padding: 14px;
+    .empty-icon { font-size: 34px; margin-bottom: 6px; }
+
+    .chips { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+    .chip {
+        flex: 1 1 110px;
+        background: #ffffff;
+        border: 1px solid #e8eaf2;
+        border-radius: 14px;
+        padding: 12px 14px;
+    }
+    .chip-label {
+        font-size: 11px; font-weight: 600; color: #94a3b8;
+        text-transform: uppercase; letter-spacing: .05em;
+    }
+    .chip-value {
+        font-size: 22px; font-weight: 700; color: #4338ca; margin-top: 2px;
     }
 
     .footer {
         text-align: center;
-        color: #9ca3af;
+        color: #94a3b8;
         font-size: 12px;
-        margin-top: 40px;
-        padding-top: 15px;
-        border-top: 1px solid #e5e7eb;
+        margin-top: 36px;
     }
     </style>
     """,
@@ -252,89 +294,7 @@ def load_model():
     return tokenizer, model, device, source_label
 
 
-# ---------------------------------------------------------------- Sidebar
-with st.sidebar:
-    st.markdown(
-        """
-        <h3 style="margin-bottom:5px;">BART Summarizer</h3>
-        <p style="color:#6b7280;font-size:13px;">
-        Abstractive text summarization using a fine-tuned BART Transformer.
-        </p>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    st.markdown("### Model")
-
-    st.write("**Architecture:** BART")
-    st.write("**Base Model:** facebook/bart-base")
-    st.write("**Dataset:** CNN/DailyMail")
-    st.write("**Task:** Abstractive Summarization")
-
-    st.divider()
-
-    st.markdown("### Generation Settings")
-
-    num_beams = st.slider(
-        "Beam Search",
-        min_value=1,
-        max_value=8,
-        value=NUM_BEAMS,
-        help="Higher values explore more candidates: better quality, slower.",
-    )
-
-    max_output = st.slider(
-        "Max Output Tokens",
-        min_value=32,
-        max_value=256,
-        value=MAX_OUTPUT_LENGTH,
-        step=16,
-        help="Upper limit for the summary length.",
-    )
-
-    length_penalty = st.slider(
-        "Length Penalty",
-        min_value=0.5,
-        max_value=3.0,
-        value=LENGTH_PENALTY,
-        step=0.1,
-        help="Above 1.0 favors longer summaries, below 1.0 favors shorter ones.",
-    )
-
-    no_repeat = st.slider(
-        "No Repeat N-gram",
-        min_value=0,
-        max_value=5,
-        value=NO_REPEAT_NGRAM_SIZE,
-        help="Blocks repeating the same n-gram. 0 disables it.",
-    )
-
-    st.caption(f"Max input: {MAX_INPUT_LENGTH} tokens (longer text is truncated)")
-
-
-# ------------------------------------------------------------------- Hero
-st.markdown(
-    """
-    <div class="hero">
-        <div class="badge">NLP · TRANSFORMER · SUMMARIZATION</div>
-        <div class="hero-title">BART Text Summarization</div>
-        <div class="hero-text">
-            Transform long-form articles into concise summaries
-            using a fine-tuned BART Transformer model trained on
-            the CNN/DailyMail dataset.
-        </div>
-        <div>
-            <span class="tag">BART</span>
-            <span class="tag">CNN/DailyMail</span>
-            <span class="tag">Transformer</span>
-            <span class="tag">Abstractive Summarization</span>
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
-
-
+# -------------------------------------------------------------- Load model
 try:
     with st.spinner("Loading model..."):
         tokenizer, model, device, source_label = load_model()
@@ -342,34 +302,62 @@ except Exception as error:
     st.error(f"Failed to load the model: {error}")
     st.stop()
 
-
 device_label = "GPU" if device.type == "cuda" else "CPU"
 
+
+# -------------------------------------------------------------------- Hero
 st.markdown(
     f"""
-    <div class="status">
-        Model ready · Running on {device_label} · Source: {source_label}
+    <div class="hero">
+        <span class="pill"><span class="dot"></span>
+            Model ready · {device_label} · {html.escape(source_label)}
+        </span>
+        <div class="hero-title">
+            Turn long articles into <span class="grad">clear summaries</span>
+        </div>
+        <div class="hero-text">
+            A BART Transformer fine-tuned on CNN/DailyMail that rewrites
+            long-form English text into short, readable abstractive summaries.
+        </div>
+        <div class="tags">
+            <span class="tag">BART-base</span>
+            <span class="tag">CNN/DailyMail</span>
+            <span class="tag">Abstractive</span>
+            <span class="tag">Beam search</span>
+        </div>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
 
-# ------------------------------------------------------------------ Input
-st.markdown(
-    '<div class="section-title">Article Input</div>',
-    unsafe_allow_html=True,
-)
+# ---------------------------------------------------------------- Settings
+with st.expander("⚙️  Generation settings", expanded=False):
+    s1, s2, s3, s4 = st.columns(4)
+    with s1:
+        num_beams = st.slider(
+            "Beam search", 1, 8, NUM_BEAMS,
+            help="More beams explore more candidates: better quality, slower.",
+        )
+    with s2:
+        max_output = st.slider(
+            "Max output tokens", 32, 256, MAX_OUTPUT_LENGTH, step=16,
+            help="Upper limit for the summary length.",
+        )
+    with s3:
+        length_penalty = st.slider(
+            "Length penalty", 0.5, 3.0, LENGTH_PENALTY, step=0.1,
+            help="Above 1.0 favors longer summaries, below 1.0 shorter ones.",
+        )
+    with s4:
+        no_repeat = st.slider(
+            "No-repeat n-gram", 0, 5, NO_REPEAT_NGRAM_SIZE,
+            help="Blocks repeating the same n-gram. 0 disables it.",
+        )
+    st.caption(f"Input is truncated after {MAX_INPUT_LENGTH} tokens.")
 
-st.markdown(
-    """
-    <div class="section-text">
-        Paste an English article below, or try a sample.
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
 
+# --------------------------------------------------------- State/callbacks
 if "article" not in st.session_state:
     st.session_state["article"] = ""
 
@@ -378,47 +366,55 @@ def load_sample():
     st.session_state["article"] = SAMPLE_ARTICLE
 
 
-def clear_text():
+def clear_all():
     st.session_state["article"] = ""
     st.session_state.pop("result", None)
 
 
-btn_a, btn_b, _ = st.columns([1, 1, 3])
-with btn_a:
-    st.button("Try a sample", on_click=load_sample, key="sample_btn")
-with btn_b:
-    st.button("Clear", on_click=clear_text, key="clear_btn")
+# ------------------------------------------------------------------ Layout
+left, right = st.columns(2, gap="large")
 
+# ------------------------------ Left: input
+with left:
+    with st.container(border=True):
+        st.markdown('<div class="card-title">Your article</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="card-sub">Paste English text, or start with a sample.</div>',
+            unsafe_allow_html=True,
+        )
 
-article = st.text_area(
-    "Article",
-    key="article",
-    height=240,
-    placeholder="Paste your article here...",
-    label_visibility="collapsed",
-)
+        b1, b2 = st.columns(2)
+        with b1:
+            st.button("✨ Try a sample", on_click=load_sample, use_container_width=True)
+        with b2:
+            st.button("Clear", on_click=clear_all, use_container_width=True)
 
-if article.strip():
-    st.caption(
-        f"{len(article.split()):,} words entered · "
-        f"Maximum input length: {MAX_INPUT_LENGTH} tokens"
-    )
+        article = st.text_area(
+            "Article",
+            key="article",
+            height=320,
+            placeholder="Paste your article here...",
+            label_visibility="collapsed",
+        )
 
+        st.caption(f"{len(article.split()):,} words")
 
-# --------------------------------------------------------------- Generate
-if st.button(
-    "Generate Summary",
-    type="primary",
-    use_container_width=True,
-):
+        generate = st.button(
+            "Generate summary",
+            type="primary",
+            use_container_width=True,
+        )
+
+# ------------------------------ Generation
+if generate:
     if not article.strip():
         st.warning("Please enter some text before generating a summary.")
     else:
-        spinner_msg = "Generating summary..."
+        msg = "Generating summary..."
         if device.type == "cpu":
-            spinner_msg += " (this may take a few seconds on CPU)"
+            msg += " (a few seconds on CPU)"
 
-        with st.spinner(spinner_msg):
+        with st.spinner(msg):
             start = time.time()
 
             inputs = tokenizer(
@@ -428,7 +424,6 @@ if st.button(
                 truncation=True,
             )
             n_input_tokens = int(inputs["input_ids"].shape[1])
-
             inputs = {k: v.to(device) for k, v in inputs.items()}
 
             with torch.no_grad():
@@ -451,92 +446,71 @@ if st.button(
             "truncated": n_input_tokens >= MAX_INPUT_LENGTH,
         }
 
-
-# ---------------------------------------------------------------- Results
-result = st.session_state.get("result")
-
-if result:
-    summary = result["summary"]
-    source_text = result["article"]
-
-    st.markdown(
-        '<div class="section-title">Generated Summary</div>',
-        unsafe_allow_html=True,
-    )
-
-    if result["truncated"]:
-        st.info(
-            f"The article exceeded {MAX_INPUT_LENGTH} tokens, "
-            "so only the first part was summarized."
-        )
-
-    tab_summary, tab_compare = st.tabs(["Summary", "Compare with original"])
-
-    with tab_summary:
+# ------------------------------ Right: result
+with right:
+    with st.container(border=True):
+        st.markdown('<div class="card-title">Summary</div>', unsafe_allow_html=True)
         st.markdown(
-            f"""
-            <div class="result-card">
-                <div class="result-label">AI Generated Summary</div>
-                <div class="result-text">{html.escape(summary)}</div>
-            </div>
-            """,
+            '<div class="card-sub">Generated by the fine-tuned BART model.</div>',
             unsafe_allow_html=True,
         )
 
-        with st.expander("Copy summary"):
-            st.code(summary, language=None, wrap_lines=True)
+        result = st.session_state.get("result")
 
-    with tab_compare:
-        left, right = st.columns(2)
-        with left:
-            st.markdown("**Original**")
+        if not result:
             st.markdown(
-                f"""
-                <div class="result-card">
-                    <div class="result-text" style="font-size:14px;">
-                        {html.escape(source_text)}
-                    </div>
+                """
+                <div class="empty-box">
+                    <div class="empty-icon">📝</div>
+                    Your summary will appear here.<br>
+                    Add an article and press <b>Generate summary</b>.
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
-        with right:
-            st.markdown("**Summary**")
+        else:
+            summary = result["summary"]
+            src = result["article"]
+
+            if result["truncated"]:
+                st.info(
+                    f"The article exceeded {MAX_INPUT_LENGTH} tokens, "
+                    "so only the first part was summarized."
+                )
+
+            st.markdown(
+                f'<div class="result-box">{html.escape(summary)}</div>',
+                unsafe_allow_html=True,
+            )
+
+            in_words = len(src.split())
+            out_words = len(summary.split())
+            compression = (1 - out_words / in_words) * 100 if in_words else 0
+
             st.markdown(
                 f"""
-                <div class="result-card">
-                    <div class="result-text" style="font-size:14px;">
-                        {html.escape(summary)}
-                    </div>
+                <div class="chips">
+                    <div class="chip"><div class="chip-label">Input</div>
+                        <div class="chip-value">{in_words:,}</div></div>
+                    <div class="chip"><div class="chip-label">Summary</div>
+                        <div class="chip-value">{out_words:,}</div></div>
+                    <div class="chip"><div class="chip-label">Compression</div>
+                        <div class="chip-value">{compression:.0f}%</div></div>
+                    <div class="chip"><div class="chip-label">Time</div>
+                        <div class="chip-value">{result['elapsed']:.1f}s</div></div>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
 
-    input_words = len(source_text.split())
-    output_words = len(summary.split())
-    compression = (
-        (1 - output_words / input_words) * 100 if input_words > 0 else 0
-    )
-
-    st.markdown(
-        '<div class="section-title">Summary Statistics</div>',
-        unsafe_allow_html=True,
-    )
-
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Input Words", f"{input_words:,}")
-    col2.metric("Summary Words", f"{output_words:,}")
-    col3.metric("Compression", f"{compression:.1f}%")
-    col4.metric("Time", f"{result['elapsed']:.1f}s")
+            with st.expander("Copy summary"):
+                st.code(summary, language=None)
 
 
 st.markdown(
     """
     <div class="footer">
-        BART CNN/DailyMail Text Summarization
-        <br>
-        Fine-tuned Transformer-based abstractive summarization
+        BART · CNN/DailyMail · Abstractive text summarization
     </div>
     """,
     unsafe_allow_html=True,
